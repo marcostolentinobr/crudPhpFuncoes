@@ -1,22 +1,52 @@
-<?
+<?php
 
-//PRINT_R PRE
-function pr($dado, $print_r = true) {
-    echo '<pre>';
-    if ($print_r) {
-        print_r($dado);
-    } else {
-        var_dump($dado);
+declare(strict_types=1);
+
+//Configurações do banco de dados
+const DB_HOST    = 'localhost';
+const DB_NAME    = 'crud';
+const DB_USER    = 'root';
+const DB_PASS    = '';
+const DB_CHARSET = 'utf8mb4';
+
+const APP_DEBUG = true;  // false em produção
+
+// CONEXÃO
+function pdo()
+{
+    static $pdo = null;
+
+    if ($pdo === null) {
+        try {
+            $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET, DB_USER, DB_PASS, [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES   => false,
+            ]);
+        } catch (PDOException $e) {
+            error_log('Erro de Conexão: ' . $e->getMessage());
+            die('Desculpe, estamos passando por uma manutenção técnica no momento.');
+        }
     }
+
+    return $pdo;
 }
 
-function pdo() {
-    $PDO = new PDO(MYSQL_DBLIB . ':host=' . MYSQL_HOST . ';dbname=' . MYSQL_DBNAME, MYSQL_USERNAME, MYSQL_PASSWORD);
-    $PDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    return $PDO;
+// Escapa saída para prevenir XSS.
+function e(mixed $value)
+{
+    return htmlspecialchars(isset($value) ? $value : '', ENT_QUOTES, 'UTF-8');
 }
 
-function pessoaDados() {
+// Redireciona e encerra a execução.
+function redirect(string $url)
+{
+    header("Location: $url");
+    exit;
+}
+
+function pessoaDados()
+{
     $pessoaDados = [
         ':NOME' => @$_POST['NOME'],
         ':UF' => @$_POST['UF'],
@@ -25,39 +55,43 @@ function pessoaDados() {
     return $pessoaDados;
 }
 
-function pessoaIncluir($pessoaDados) {
+function pessoaIncluir(array $pessoaDados)
+{
     $PDO = pdo();
     $pesIncluir = $PDO->prepare('
-            INSERT INTO PESSOA (NOME,   UF,  OBSERVACAO) 
-                        VALUES (:NOME, :UF, :OBSERVACAO)
-        ');
+        INSERT INTO PESSOA (NOME,   UF,  OBSERVACAO) 
+                    VALUES (:NOME, :UF, :OBSERVACAO)
+    ');
     return $pesIncluir->execute($pessoaDados);
 }
 
-function pessoaAlterar($pessoaDados, $ID_PESSOA) {
+function pessoaAlterar(array $pessoaDados, int $ID_PESSOA)
+{
     $PDO = pdo();
     $pesAlterar = $PDO->prepare('
-            UPDATE PESSOA SET NOME = :NOME, 
-                                UF = :UF, 
-                        OBSERVACAO = :OBSERVACAO 
-                   WHERE ID_PESSOA = :ID_PESSOA
-        ');
+        UPDATE PESSOA SET NOME = :NOME, 
+                            UF = :UF, 
+                    OBSERVACAO = :OBSERVACAO 
+                WHERE ID_PESSOA = :ID_PESSOA
+    ');
     $pessoaDados[':ID_PESSOA'] = $ID_PESSOA;
     return $pesAlterar->execute($pessoaDados);
 }
 
-function pessoaExcluir($ID_PESSOA) {
+function pessoaExcluir(int $ID_PESSOA)
+{
     $PDO = pdo();
     $pesExcluir = $PDO->prepare('
-            DELETE FROM PESSOA 
-                  WHERE ID_PESSOA = :ID_PESSOA
-        ');
+        DELETE FROM PESSOA 
+                WHERE ID_PESSOA = :ID_PESSOA
+    ');
     return $pesExcluir->execute([
-                ':ID_PESSOA' => $ID_PESSOA
+        ':ID_PESSOA' => $ID_PESSOA
     ]);
 }
 
-function pessoaListar() {
+function pessoaListar()
+{
     $PDO = pdo();
     $sql = "
         SELECT *
@@ -66,37 +100,3 @@ function pessoaListar() {
     ";
     return $PDO->query($sql);
 }
-
-try {
-
-    $mensagemErro = '';
-    $pessoaArray = [];
-
-    //INCLUIR/ALTERAR - DADOS
-    if (in_array(@$_POST['ACAO'], ['Incluir', 'Alterar'])) {
-        $pessoaDados = pessoaDados();
-    }
-
-    //INCLUIR
-    if (@$_POST['ACAO'] == 'Incluir') {
-        $acaoDescricaoOk = 'Incluído';
-        $ok = pessoaIncluir($pessoaDados);
-    }
-    //ALTERAR
-    elseif (@$_POST['ACAO'] == 'Alterar') {
-        $acaoDescricaoOk = 'Alterado';
-        $ok = pessoaAlterar($pessoaDados, $_POST['ID_PESSOA']);
-    }
-    //EXCLUIR
-    elseif (@$_POST['ACAO'] == 'Excluir') {
-        $acaoDescricaoOk = 'Excluído';
-        $ok = pessoaExcluir($_POST['ID_PESSOA']);
-    }
-    //CANCELAR
-    elseif (@$_POST['ACAO'] == 'Cancelar') {
-        unset($_POST);
-    }
-} catch (Exception $ex) {
-    $mensagemErro = "<br><small style='font-size: 12px'>{$ex->getMessage()}</small><br>";
-}
-?>
