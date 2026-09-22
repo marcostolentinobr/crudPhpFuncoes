@@ -112,10 +112,10 @@ if (in_array($getSucesso, ['Incluir', 'Alterar', 'Excluir'], true)) {
                     <h2 style="text-align: center;">Pessoas</h2>
                     <?php
                     $pessoaQuery = pessoaListar();
-                    if ($pessoaQuery->rowCount() === 0) {
+                    if (empty($pessoaQuery)) {
                         echo '<h5 style="text-align: center; color: blue;">Não existem pessoas para listar!</h5>';
                     }
-                    while ($pessoaFetch = $pessoaQuery->fetch(PDO::FETCH_ASSOC)) {
+                    foreach ($pessoaQuery as $pessoaFetch) {
                         $pessoaArray[$pessoaFetch['ID_PESSOA']] = $pessoaFetch;
                         echo e($pessoaFetch['NOME']);
                     ?>
@@ -123,7 +123,8 @@ if (in_array($getSucesso, ['Incluir', 'Alterar', 'Excluir'], true)) {
                         <form method="POST" style="display: inline; margin-left: 0.5rem;">
                             <input type="hidden" name="ID_PESSOA" value="<?php echo (int) $pessoaFetch['ID_PESSOA'] ?>">
                             <input name="ACAO" value="Editar" type="submit">
-                            <input name="ACAO" value="Excluir" type="submit">
+                            <input name="ACAO" value="Excluir" type="submit"
+                                   onclick="return confirm('Excluir este registro?');">
                         </form>
                         <hr style="border: 0; border-top: 1px solid #ccc; margin: 0.5rem 0;">
                     <?php

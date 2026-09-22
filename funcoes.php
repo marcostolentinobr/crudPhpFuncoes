@@ -17,7 +17,7 @@ const UF_PERMITIDAS = [
 ];
 
 // CONEXÃO
-function pdo(): PDO
+function pdo()
 {
     static $pdo = null;
 
@@ -42,28 +42,26 @@ function pdo(): PDO
     return $pdo;
 }
 
-/** Escapa saída para prevenir XSS. */
-function e(mixed $value): string
+// Escapa saída para prevenir XSS.
+function e(mixed $value)
 {
-    return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string) (isset($value) ? $value : ''), ENT_QUOTES, 'UTF-8');
 }
 
-/** Redireciona e encerra a execução. */
-function redirect(string $url): void
+// Redireciona e encerra a execução
+function redirect(string $url)
 {
     header("Location: $url");
     exit;
 }
 
-/**
- * Lê e valida os dados do formulário.
- * @return array{ok: true, dados: array}|array{ok: false, erro: string}
- */
-function pessoaDados(): array
+
+// Lê e valida os dados do formulário.
+function pessoaDados()
 {
-    $nome = trim((string) ($_POST['NOME'] ?? ''));
-    $uf = strtoupper(trim((string) ($_POST['UF'] ?? '')));
-    $observacao = trim((string) ($_POST['OBSERVACAO'] ?? ''));
+    $nome = trim((string) (isset($_POST['NOME']) ? $_POST['NOME'] : ''));
+    $uf = strtoupper(trim((string) (isset($_POST['UF']) ? $_POST['UF'] : '')));
+    $observacao = trim((string) (isset($_POST['OBSERVACAO']) ? $_POST['OBSERVACAO'] : ''));
 
     if ($nome === '' || mb_strlen($nome) > 100) {
         return ['ok' => false, 'erro' => 'Nome inválido.'];
@@ -87,7 +85,8 @@ function pessoaDados(): array
     ];
 }
 
-function pessoaIncluir(array $pessoaDados): bool
+// INCLUIR
+function pessoaIncluir(array $pessoaDados)
 {
     $pdo = pdo();
     $stmt = $pdo->prepare('
@@ -97,7 +96,8 @@ function pessoaIncluir(array $pessoaDados): bool
     return $stmt->execute($pessoaDados);
 }
 
-function pessoaAlterar(array $pessoaDados, int $idPessoa): bool
+// ALTERAR 
+function pessoaAlterar(array $pessoaDados, int $idPessoa)
 {
     $pdo = pdo();
     $stmt = $pdo->prepare('
@@ -111,7 +111,8 @@ function pessoaAlterar(array $pessoaDados, int $idPessoa): bool
     return $stmt->execute($pessoaDados);
 }
 
-function pessoaExcluir(int $idPessoa): bool
+// EXCLUIR
+function pessoaExcluir(int $idPessoa)
 {
     $pdo = pdo();
     $stmt = $pdo->prepare('
@@ -122,12 +123,14 @@ function pessoaExcluir(int $idPessoa): bool
     return $stmt->rowCount() > 0;
 }
 
-function pessoaListar(): PDOStatement
+// LISTAR
+function pessoaListar()
 {
     $pdo = pdo();
-    return $pdo->query('
+    $stmt = $pdo->query('
         SELECT ID_PESSOA, NOME, UF, OBSERVACAO
           FROM PESSOA
       ORDER BY NOME
     ');
+    return $stmt->fetchAll();
 }
