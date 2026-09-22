@@ -11,7 +11,10 @@ const DB_CHARSET = 'utf8mb4';
 
 const APP_DEBUG = true;  // false em produção
 
-const UF_PERMITIDAS = ['SC', 'OU'];
+const UF_PERMITIDAS = [
+    'SC' => 'SC',
+    'OU' => 'Outro',
+];
 
 // CONEXÃO
 function pdo(): PDO
@@ -66,7 +69,7 @@ function pessoaDados(): array
         return ['ok' => false, 'erro' => 'Nome inválido.'];
     }
 
-    if (!in_array($uf, UF_PERMITIDAS, true)) {
+    if (!array_key_exists($uf, UF_PERMITIDAS)) {
         return ['ok' => false, 'erro' => 'UF inválida.'];
     }
 

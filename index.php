@@ -153,8 +153,15 @@ if (in_array($getSucesso, ['Incluir', 'Alterar', 'Excluir'], true)) {
                         <label for="uf_input">UF:</label>
                         <select id="uf_input" name="UF" required>
                             <option value=""></option>
-                            <option value="SC" <?php echo (($pessoaAlterar['UF'] ?? '') === 'SC') ? 'selected' : '' ?>>SC</option>
-                            <option value="OU" <?php echo (($pessoaAlterar['UF'] ?? '') === 'OU') ? 'selected' : '' ?>>Outro</option>
+                            <?php
+                            $ufAtual = $pessoaAlterar['UF'] ?? '';
+                            foreach (UF_PERMITIDAS as $ufCodigo => $ufLabel):
+                            ?>
+                                <option value="<?php echo e($ufCodigo) ?>"
+                                    <?php echo ($ufAtual === $ufCodigo) ? 'selected' : '' ?>>
+                                    <?php echo e($ufLabel) ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                         <br><br>
 
