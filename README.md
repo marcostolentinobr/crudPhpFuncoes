@@ -1,25 +1,23 @@
 # Exemplo de CRUD com PHP e funções separadas
 
-Projeto voltado a fazer um crud fácil e simples com funções separadas. 
+Projeto voltado a fazer um CRUD fácil e simples com funções separadas.
 
 ## Requisitos
 
-.PHP  
-.Pdo  
-.Mysql  
+- PHP 7.4+
+- PDO
+- MySQL
 
-## PHP - Habilitar
+## Instalação
 
-.short_open_tag
+1. Execute o arquivo `Artefatos/PESSOA.sql` no MySQL
+2. Configure o banco de dados no início de `funcoes.php`
 
-## Instação
+## Estrutura
 
-.Execute o arquivo Artefatos/PESSOA.sql no Mysql
-
-## Configiguração
-
-.Configure o banco de dados no inicio do arquivo index.php
+- `funcoes.php` — configuração, conexão PDO e operações CRUD
+- `index.php` — formulário e listagem
 
 ## Autor
 
-.Marcos Tolentino
+Marcos Tolentino
