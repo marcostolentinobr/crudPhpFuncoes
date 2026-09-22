@@ -142,7 +142,7 @@ if (in_array($getSucesso, ['Incluir', 'Alterar', 'Excluir'], true)) {
                 <td style="text-align: center; padding: 1rem; width: 50%;">
                     <h2><?php echo e($acaoDescricao) ?> Pessoa</h2>
                     <form method="POST">
-                        <input type="hidden" name="ID_PESSOA" value="<?php echo (int) ($pessoaAlterar['ID_PESSOA'] ?? 0) ?>">
+                        <input type="hidden" name="ID_PESSOA" value="<?php echo (int) (isset($pessoaAlterar['ID_PESSOA']) ? $pessoaAlterar['ID_PESSOA'] : 0) ?>">
 
                         <label for="nome_input">Nome: </label>
                         <input id="nome_input" name="NOME"
@@ -154,7 +154,7 @@ if (in_array($getSucesso, ['Incluir', 'Alterar', 'Excluir'], true)) {
                         <select id="uf_input" name="UF" required>
                             <option value=""></option>
                             <?php
-                            $ufAtual = $pessoaAlterar['UF'] ?? '';
+                            $ufAtual = isset($pessoaAlterar['UF']) ? $pessoaAlterar['UF'] : '';
                             foreach (UF_PERMITIDAS as $ufCodigo => $ufLabel):
                             ?>
                                 <option value="<?php echo e($ufCodigo) ?>"
@@ -167,7 +167,7 @@ if (in_array($getSucesso, ['Incluir', 'Alterar', 'Excluir'], true)) {
 
                         <label for="observacao_input">Observação:</label>
                         <textarea id="observacao_input" maxlength="1000" style="height: 100px"
-                                  name="OBSERVACAO"><?php echo e($pessoaAlterar['OBSERVACAO'] ?? '') ?></textarea>
+                                  name="OBSERVACAO"><?php echo e(isset($pessoaAlterar['OBSERVACAO']) ? $pessoaAlterar['OBSERVACAO'] : '') ?></textarea>
                         <br><br>
 
                         <hr>
